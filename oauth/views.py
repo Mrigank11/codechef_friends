@@ -1,8 +1,7 @@
-import requests
-
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import login
 
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
@@ -10,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
 from api.models import CCUser
-from api.utils import APIResponse
 from .utils import recieve_tokens, get_oauth
 
 import os
@@ -45,9 +43,11 @@ def oauth_callback(request):
     username = response_map["result"]["data"]["content"]["username"]
     # create a user in our DB if nout found
     try:
-        ccuser = CCUser.objects.get(username=username)
+        cc_user = CCUser.objects.get(username=username)
     except ObjectDoesNotExist:
-        ccuser = CCUser.objects.create(username=username)
+        cc_user = CCUser.objects.create(username=username)
 
-    t, _ = Token.objects.get_or_create(user=ccuser)
+    t, _ = Token.objects.get_or_create(user=cc_user)
+    # login this fella
+    login(request, cc_user)
     return Response({'token': t.key, 'username': username})
