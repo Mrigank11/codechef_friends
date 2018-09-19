@@ -1,30 +1,53 @@
+import requests
+
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from requests_oauthlib import OAuth2Session
+from django.core.exceptions import ObjectDoesNotExist
+
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.exceptions import APIException
+
+from api.models import CCUser
+from api.utils import APIResponse
+from .utils import recieve_tokens, get_oauth
 
 import os
 # TODO: remove this in production
-# This allows us to use a plain HTTP callback
+# This allows us to use a plain HTTP oauth_callback
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = "1"
 
-CLIENT_ID = 'd76c69dcf7e9dfeecb85f47d4abf8713'
-CLIENT_SECRET = '39263da02c23967fe45dee1e6a2b432a'
-REDIRECT_URI = 'http://127.0.0.1:8080/oauth/callback'
-
-oauth = OAuth2Session(CLIENT_ID, redirect_uri=REDIRECT_URI)
-authorization_url, _ = oauth.authorization_url('https://api.codechef.com/oauth/authorize', state="")
 
 def index(request):
     return HttpResponse("Hello from OAuth!")
 
+
 def oauth_redirect(request):
+    oauth = get_oauth()
+    authorization_url, _ = oauth.authorization_url(
+        'https://api.codechef.com/oauth/authorize', state="")
     return redirect(authorization_url)
 
-def callback(request):
-    # TODO: fix this
-    # Codechef is not sending the standard oauth response!
-    token = oauth.fetch_token(
-        'https://api.codechef.com/oauth/token',
-        code = request.GET['code'],
-        client_secret=CLIENT_SECRET)
-    print(token)
+
+@api_view(['GET'])
+def oauth_callback(request):
+    token = recieve_tokens(request)
+    if not token:
+        raise APIException("error exchanging tokens")
+
+    oauth = get_oauth(token=token)
+    # fetch username from codechef
+    response_map = oauth.get("https://api.codechef.com/users/me").json()
+    if response_map["status"] != "OK":
+        return Response("Codechef error")
+
+    username = response_map["result"]["data"]["content"]["username"]
+    # create a user in our DB if nout found
+    try:
+        ccuser = CCUser.objects.get(username=username)
+    except ObjectDoesNotExist:
+        ccuser = CCUser.objects.create(username=username)
+
+    t, _ = Token.objects.get_or_create(user=ccuser)
+    return Response({'token': t.key, 'username': username})
