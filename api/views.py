@@ -1,3 +1,5 @@
+import requests
+
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.decorators import api_view, permission_classes
@@ -5,8 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException, ParseError
 from rest_framework.authtoken.models import Token
-
-from oauth.utils import get_oauth
 
 from .serializers import CCUserSerializer
 from .models import CCUser
@@ -38,13 +38,24 @@ def print_access_token(request):
     })
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT'])
 @permission_classes((IsAuthenticated,))
 def friends(request):
+    """
+    GET
+    -----
+    - params  : None
+    - returns : friend list
+    PUT
+    -----
+    - params    :   username
+    - returns   :   friend list
+    """
     cc_user = request.user
+    serializer = CCUserSerializer(cc_user.friends, many=True)
+
     if request.method == "GET":
-        friends = cc_user.friends
-        serializer = CCUserSerializer(friends, many=True)
+        # nothing to do
         return Response(serializer.data)
 
     # rest of them require `username` in request.data
@@ -58,13 +69,41 @@ def friends(request):
     try:
         friend = CCUser.objects.get(username=friend_username)
     except ObjectDoesNotExist:
-        raise ParseError("Your friend is not on codechef friends")
+        # check if user has a account on codechef
+        r = requests.head(
+            "https://www.codechef.com/users/{}".format(friend_username))
+        if r.status_code == 200:
+            # create a new user
+            friend = CCUser.objects.create(username=friend_username)
+        elif r.status_code == 404:
+            raise ParseError("Your friend is not on Codechef")
+        else:
+            raise APIException("Codechef ERROR")
 
     if request.method == "PUT":
         cc_user.friends.add(friend)
 
-    if request.method == "DELETE":
-        cc_user.friends.remove(friend)
-
-    serializer = CCUserSerializer(friend)
     return Response(serializer.data)
+
+
+@api_view(['DELETE', 'GET'])
+@permission_classes((IsAuthenticated,))
+def get_friend_info(request, username=None):
+    if request.method == "GET":
+        return Response()
+    if request.method == "DELETE":
+        try:
+            friend = CCUser.objects.get(username=username)
+            request.user.friends.remove(friend)
+            # check if friend has token i.e. if he has ever logged in
+            try:
+                _ = Token.objects.get(user=friend)
+            except ObjectDoesNotExist:
+                # if he's no-one's friend, remove him
+                if len(friend.ccuser_set.all()) == 0:
+                    # this user has no right to exists!!!
+                    friend.delete()
+            serializer = CCUserSerializer(request.user.friends, many=True)
+            return Response(serializer.data)
+        except ObjectDoesNotExist:
+            raise ParseError("He/She is not your friend.")

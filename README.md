@@ -9,11 +9,11 @@ Because, it's always better with friends :)
 Root endpoint: `/api/`
 
 - [x] `GET /users/?q=<query>` : Search/List users registered on "Codechef_friends"
-- [ ] `GET /users/<username>` : returns `User` object, containing basic user info
+- [ ] `GET /users/<username>` : fetch user info from codechef
 - [x] `GET /friends`* : returns user's list of friends
 - [x] `PUT /friends`* : add friend, requires:
 	- Friends' codechef id
-- [x] `DELETE /friends`* : remove friend, requires:
+- [x] `DELETE /friends/<username>`* : remove friend, requires:
 	- Friends' codechef id
 
 `*` needs authentication header

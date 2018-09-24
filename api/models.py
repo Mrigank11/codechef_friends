@@ -5,4 +5,4 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CCUser(AbstractUser):
-    friends = models.ManyToManyField("self")
+    friends = models.ManyToManyField("self", symmetrical=False)
