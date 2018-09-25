@@ -1,6 +1,13 @@
 import requests
+import json
 
-from requests_oauthlib import OAuth2Session
+from django.contrib.auth import login
+
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+
+from api.models import CCUser
+from api.utils import call_api
 
 CLIENT_ID = 'd76c69dcf7e9dfeecb85f47d4abf8713'
 CLIENT_SECRET = '39263da02c23967fe45dee1e6a2b432a'
@@ -26,7 +33,24 @@ def recieve_tokens(request):
     tokens = response['result']['data']
     return tokens
 
+def get_oauth_url():
+    return f"https://api.codechef.com/oauth/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&state=xyz"
 
-def get_oauth(token=None):
-    oauth = OAuth2Session(CLIENT_ID, redirect_uri=REDIRECT_URI, token=token)
-    return oauth
+def handle_new_tokens(tokens, request):
+    # fetch username from codechef
+    response_map = call_api("users","me",tokens=tokens)
+
+    username = response_map["username"]
+    # create a user in our DB if nout found
+    try:
+        cc_user = CCUser.objects.get(username=username)
+    except ObjectDoesNotExist:
+        cc_user = CCUser.objects.create(username=username)
+
+    cc_user.tokens = json.dumps(tokens)
+    cc_user.save()
+    t, _ = Token.objects.get_or_create(user=cc_user)
+    # login this fella
+    login(request, cc_user)
+    return Response({'token': t.key, 'username': username})
+

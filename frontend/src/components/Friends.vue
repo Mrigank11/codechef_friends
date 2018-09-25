@@ -1,19 +1,19 @@
 <template>
 	<v-container>
-		<v-form>
+		<v-form @submit.prevent="addFriend" >
 			<v-layout row>
 				<v-flex xs11 >
 					<v-text-field placeholder="Add new friend" v-model="newFriendName" ></v-text-field>
 				</v-flex>
 			<v-flex>
-				<v-btn icon>
+				<v-btn type="submit" icon>
 					<v-icon @click="addFriend" >add</v-icon>
 				</v-btn>
 			</v-flex>
 			</v-layout>
 		</v-form>
 		<v-list>
-			<v-list-tile v-for="f in friends" :key="f.username" >
+			<v-list-tile @click="alert('1')" v-for="f in friends" :key="f.username" >
 				<v-list-tile-title>{{f.username}}</v-list-tile-title> 
 				<v-list-tile-action>
 					<v-btn @click="removeFriend(f.username)" icon>

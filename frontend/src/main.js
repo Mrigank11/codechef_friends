@@ -14,8 +14,11 @@ Vue.config.productionTip = false
 Vue.use(VueRouter);
 Vue.use(VueResource);
 
-Vue.http.options.root = "http://localhost:8080";
-Vue.http.interceptors.push(function(request) {
+if (process.env.NODE_ENV == "development") {
+	Vue.http.options.root = "http://localhost:8080";
+} 
+
+Vue.http.interceptors.push(function() {
 	// return response callback
 	store.loading = true;
 	return function(response) {

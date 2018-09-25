@@ -1,15 +1,15 @@
+import json
+
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import login
 
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
-from api.models import CCUser
-from .utils import recieve_tokens, get_oauth
+from .utils import recieve_tokens, get_oauth_url, handle_new_tokens
 
 import os
 # TODO: remove this in production
@@ -22,32 +22,19 @@ def index(request):
 
 
 def oauth_redirect(request):
-    oauth = get_oauth()
-    authorization_url, _ = oauth.authorization_url(
-        'https://api.codechef.com/oauth/authorize', state="")
+    authorization_url = get_oauth_url()
     return redirect(authorization_url)
 
 
 @api_view(['GET'])
 def oauth_callback(request):
-    token = recieve_tokens(request)
-    if not token:
+    tokens = recieve_tokens(request)
+    if not tokens:
         raise APIException("error exchanging tokens")
+    return handle_new_tokens(tokens, request)
 
-    oauth = get_oauth(token=token)
-    # fetch username from codechef
-    response_map = oauth.get("https://api.codechef.com/users/me").json()
-    if response_map["status"] != "OK":
-        return Response("Codechef error")
 
-    username = response_map["result"]["data"]["content"]["username"]
-    # create a user in our DB if nout found
-    try:
-        cc_user = CCUser.objects.get(username=username)
-    except ObjectDoesNotExist:
-        cc_user = CCUser.objects.create(username=username)
-
-    t, _ = Token.objects.get_or_create(user=cc_user)
-    # login this fella
-    login(request, cc_user)
-    return Response({'token': t.key, 'username': username})
+@api_view(['POST'])
+def cli_auth(request):
+    tokens = request.data
+    return handle_new_tokens(tokens, request)

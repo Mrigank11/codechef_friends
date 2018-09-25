@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 
 from .serializers import CCUserSerializer
 from .models import CCUser
+from .utils import call_api
 
 # Create your views here.
 
@@ -90,7 +91,8 @@ def friends(request):
 @permission_classes((IsAuthenticated,))
 def get_friend_info(request, username=None):
     if request.method == "GET":
-        return Response()
+        userinfo = call_api("users",username,user=request.user)
+        return Response(userinfo)
     if request.method == "DELETE":
         try:
             friend = CCUser.objects.get(username=username)

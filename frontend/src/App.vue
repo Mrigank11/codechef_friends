@@ -2,6 +2,9 @@
 <v-app>
   <v-navigation-drawer clipped app v-model="drawer" >
 		<v-list>
+			<v-list-tile to="/" >
+				Home
+			</v-list-tile>
 			<v-list-tile to="/friends" >
 				Friends
 			</v-list-tile>
