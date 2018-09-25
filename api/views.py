@@ -91,7 +91,9 @@ def friends(request):
 @permission_classes((IsAuthenticated,))
 def get_friend_info(request, username=None):
     if request.method == "GET":
-        userinfo = call_api("users",username,user=request.user)
+        userinfo = call_api("users", username, user=request.user, params={
+            "fields": request.GET["fields"] if "fields" in request.GET else ""
+        })
         return Response(userinfo)
     if request.method == "DELETE":
         try:
@@ -99,7 +101,7 @@ def get_friend_info(request, username=None):
             request.user.friends.remove(friend)
             # check if friend has token i.e. if he has ever logged in
             try:
-                _ = Token.objects.get(user=friend)
+                Token.objects.get(user=friend)
             except ObjectDoesNotExist:
                 # if he's no-one's friend, remove him
                 if len(friend.ccuser_set.all()) == 0:

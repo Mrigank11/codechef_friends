@@ -5,6 +5,7 @@ import App from './App.vue'
 import Home from './components/Home.vue'
 import RecvToken from './components/RecvToken.vue'
 import Friends from './components/Friends.vue'
+import FriendInfo from './components/FriendInfo.vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 import store from './store.js'
@@ -24,7 +25,7 @@ Vue.http.interceptors.push(function() {
 	return function(response) {
 		store.loading = false;
 		if (response.status != 200) {
-			this.store.alert = {
+			store.alert = {
 				enabled: true,
 				color: "red",
 				message: response.body.detail
@@ -37,9 +38,17 @@ const routes = [
 	{ path: '/', component: Home },
 	{ path: '/token/:token', component: RecvToken },
 	{ path: '/friends', component: Friends },
+	{ path: '/friend/:username', component: FriendInfo },
 ];
 
-const token = window.localStorage.getItem("token");
+let token = window.localStorage.getItem("token");
+if(!token){
+	//try to fetch token from API
+	Vue.http.get("api/token").then(res=>{
+		token = res.data.token;
+	});
+}
+
 if(token){
 	Vue.http.headers.common['Authorization'] = `Token ${token}`;
 	store.loggedIn = true;

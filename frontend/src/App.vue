@@ -38,11 +38,10 @@
 			</v-dialog>
 			<div v-if="!store.loading && !store.loggedIn">
 				<p> Please login to continue. </p>
-				<a href="/oauth/redirect"><v-btn color="primary"  > Login In</v-btn></a>
+				<a href="/oauth/redirect?next=/"><v-btn color="primary"  > Login In</v-btn></a>
 			</div>
     </v-container>
   </v-content>
-  <v-footer app></v-footer>
 </v-app>
 </template>
 

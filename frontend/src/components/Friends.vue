@@ -13,10 +13,10 @@
 			</v-layout>
 		</v-form>
 		<v-list>
-			<v-list-tile @click="alert('1')" v-for="f in friends" :key="f.username" >
+			<v-list-tile :to="'friend/'+f.username" v-for="f in friends" :key="f.username" >
 				<v-list-tile-title>{{f.username}}</v-list-tile-title> 
 				<v-list-tile-action>
-					<v-btn @click="removeFriend(f.username)" icon>
+					<v-btn @click.prevent="removeFriend(f.username)" icon>
 						<v-icon color="red">delete</v-icon>
 					</v-btn>
 				</v-list-tile-action>

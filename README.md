@@ -1,14 +1,12 @@
 # CC Friends API
 Because, it's always better with friends :)
 
-**NOTE**: All endpoints can be tested using the nice interface provided by DRF. Just open endpoints in browser.
+**NOTE**: All endpoints can be tested using the nice interface provided by DRF. Just them in your browser.
 
 ## OAuth2
 Root endpoint: `/oauth`
 - `GET /redirect` : redirect to codechef
 - `GET /callback` : handle response
-- `POST /cli_auth` : handles new user on cf-friends given tokens
-	- requires tokens as JSON
 
 ## API 
 Root endpoint: `/api`
@@ -22,9 +20,6 @@ Root endpoint: `/api`
 	- Friends' codechef id
 
 `*` needs authentication header
-
-## TODO
-- [ ] Remove request_oauthlib (?). Because codechef is not following the RFC
 
 ## Demo
 - `pipenv install` 
