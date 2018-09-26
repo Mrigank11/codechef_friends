@@ -41,20 +41,28 @@ const routes = [
 	{ path: '/friend/:username', component: FriendInfo },
 ];
 
-let token = window.localStorage.getItem("token");
+function checkToken(){
+	let token = window.localStorage.getItem("token");
+	if(token){
+		Vue.http.headers.common['Authorization'] = `Token ${token}`;
+		store.loggedIn = true;
+	}
+	return token;
+}
+
+let token = checkToken();
 if(!token){
 	//try to fetch token from API
 	Vue.http.get("api/token").then(res=>{
-		token = res.data.token;
+		let token = res.data.token;
+		window.localStorage.setItem("token",token);
+		checkToken();
 	});
 }
 
-if(token){
-	Vue.http.headers.common['Authorization'] = `Token ${token}`;
-	store.loggedIn = true;
-}
-
+//finally create the App
 new Vue({
   render: h => h(App),
 	router:new VueRouter({routes}),
 }).$mount('#app')
+

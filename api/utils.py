@@ -45,10 +45,10 @@ def call_api(*path, params=None, user=None, tokens=None):
             logger.debug("response from CC: ", resp_map)
             # store tokens
             if resp_map["status"] == "OK":
-                tokens = json.dumps(resp_map["result"]["data"])
+                tokens = resp_map["result"]["data"]
                 if user:
                     # update this user's tokens
-                    user.tokens = tokens
+                    user.tokens = json.dumps(tokens)
                     user.save()
                 # re-run the query
                 logger.debug("retrying query with new tokens")
