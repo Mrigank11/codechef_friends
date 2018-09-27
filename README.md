@@ -21,7 +21,14 @@ Root endpoint: `/api`
 
 `*` needs authentication header
 
-## Demo
-- `pipenv install` 
-- `./manage.py runserver <port>` to start server
+## Development
+- Rename `.env.sample` to `.env` and enter your own creds.
+	### Server
+		- `pipenv install` 
+		- `./manage.py runserver <port>` to start server
+	### Frontend
+		- `cd frontend && yarn && yarn serve` to start frontend
 - Open `/oauth/redirect` to start flow, and recieve tokens
+
+## Demo
+- A demo version is hosted at [aliyun.mrigankkrishan.tk](https://aliyun.mrigankkrishan.tk)
