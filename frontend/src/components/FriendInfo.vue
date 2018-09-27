@@ -31,7 +31,7 @@ export default {
 	},
 	mounted(){
 		this.username = this.$route.params.username;
-		this.$http.get(`api/friends/${this.username}`).then(resp=>{
+		this.$http.get(`api/following/${this.username}`).then(resp=>{
 			this.userdata = resp.data;
 		});
 	}

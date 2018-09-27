@@ -5,8 +5,11 @@
 			<v-list-tile to="/" >
 				Home
 			</v-list-tile>
-			<v-list-tile to="/friends" >
-				Friends
+			<v-list-tile to="/following" >
+				Following
+			</v-list-tile>
+			<v-list-tile to="/followers" >
+				Followers
 			</v-list-tile>
 		</v-list>
 	</v-navigation-drawer>

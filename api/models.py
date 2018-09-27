@@ -5,5 +5,5 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CCUser(AbstractUser):
-    friends = models.ManyToManyField("self", symmetrical=False)
+    following = models.ManyToManyField("self", symmetrical=False)
     tokens = models.TextField()

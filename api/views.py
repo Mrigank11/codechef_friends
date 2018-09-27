@@ -41,7 +41,7 @@ def print_access_token(request):
 
 @api_view(['GET', 'PUT'])
 @permission_classes((IsAuthenticated,))
-def friends(request):
+def following(request):
     """
     GET
     -----
@@ -53,7 +53,7 @@ def friends(request):
     - returns   :   friend list
     """
     cc_user = request.user
-    serializer = CCUserSerializer(cc_user.friends, many=True)
+    serializer = CCUserSerializer(cc_user.following, many=True)
 
     if request.method == "GET":
         # nothing to do
@@ -82,8 +82,15 @@ def friends(request):
             raise APIException("Codechef ERROR")
 
     if request.method == "PUT":
-        cc_user.friends.add(friend)
+        cc_user.following.add(friend)
 
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def followers(request):
+    serializer = CCUserSerializer(request.user.ccuser_set, many=True)
     return Response(serializer.data)
 
 
@@ -98,7 +105,7 @@ def get_friend_info(request, username=None):
     if request.method == "DELETE":
         try:
             friend = CCUser.objects.get(username=username)
-            request.user.friends.remove(friend)
+            request.user.following.remove(friend)
             # check if friend has token i.e. if he has ever logged in
             try:
                 Token.objects.get(user=friend)
@@ -107,7 +114,7 @@ def get_friend_info(request, username=None):
                 if len(friend.ccuser_set.all()) == 0:
                     # this user has no right to exists!!!
                     friend.delete()
-            serializer = CCUserSerializer(request.user.friends, many=True)
+            serializer = CCUserSerializer(request.user.following, many=True)
             return Response(serializer.data)
         except ObjectDoesNotExist:
             raise ParseError("He/She is not your friend.")

@@ -5,6 +5,7 @@ import App from './App.vue'
 import Home from './components/Home.vue'
 import RecvToken from './components/RecvToken.vue'
 import Friends from './components/Friends.vue'
+import Followers from './components/Followers.vue'
 import FriendInfo from './components/FriendInfo.vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
@@ -37,8 +38,9 @@ Vue.http.interceptors.push(function() {
 const routes = [
 	{ path: '/', component: Home },
 	{ path: '/token/:token', component: RecvToken },
-	{ path: '/friends', component: Friends },
-	{ path: '/friend/:username', component: FriendInfo },
+	{ path: '/following', component: Friends },
+	{ path: '/followers', component: Followers },
+	{ path: '/userinfo/:username', component: FriendInfo },
 ];
 
 function checkToken(){

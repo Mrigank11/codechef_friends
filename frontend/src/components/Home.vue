@@ -1,6 +1,8 @@
 <template>
 	<v-container>
-		Hello World
+		Use sidebar for navigation. 
+		<br>
+		You can follow people and see your followers.
 	</v-container>
 </template>
 

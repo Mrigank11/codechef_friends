@@ -13,7 +13,7 @@
 			</v-layout>
 		</v-form>
 		<v-list>
-			<v-list-tile :to="'friend/'+f.username" v-for="f in friends" :key="f.username" >
+			<v-list-tile :to="'userinfo/'+f.username" v-for="f in friends" :key="f.username" >
 				<v-list-tile-title>{{f.username}}</v-list-tile-title> 
 				<v-list-tile-action>
 					<v-btn @click.prevent="removeFriend(f.username)" icon>
@@ -38,18 +38,18 @@ export default {
 	},
 	methods:{
 		loadFriends(){
-			this.$http.get("api/friends").then(res=>{
+			this.$http.get("api/following").then(res=>{
 				this.friends = res.body;
 			});
 		},
 		addFriend(){
-			this.$http.put("api/friends",{username:this.newFriendName})
+			this.$http.put("api/following",{username:this.newFriendName})
 				.then(resp=>{
 					this.friends = resp.body;
 				});
 		},
 		removeFriend(username){
-			this.$http.delete(`api/friends/${username}`)
+			this.$http.delete(`api/following/${username}`)
 				.then(resp=>{
 					this.friends = resp.body;
 				});
