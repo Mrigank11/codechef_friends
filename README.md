@@ -29,6 +29,7 @@ Root endpoint: `/api`
 	### Frontend
 		- `cd frontend && yarn && yarn serve` to start frontend
 - Open `/oauth/redirect` to start flow, and recieve tokens
+- For production server, use the provided nginx config.
 
 ## Demo
 - A demo version is hosted at [aliyun.mrigankkrishan.tk](https://aliyun.mrigankkrishan.tk)
